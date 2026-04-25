@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/laragon/www/**)",
+      "Bash(yes \"\")",
+      "Bash(npx create-next-app@latest hotdog-watersport --typescript --eslint --tailwind --no-src-dir --app --no-turbopack --import-alias \"@/*\")",
+      "Bash(npx create-next-app@latest hotdog-temp --typescript --eslint --tailwind --no-src-dir --app --no-turbopack --import-alias \"@/*\")",
+      "Bash(cp -r hotdog-temp/. hotdog-watersport/ --exclude=node_modules)",
+      "Bash(rsync -av --exclude='node_modules' hotdog-temp/ hotdog-watersport/)",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(npx shadcn@latest *)",
+      "Bash(xargs grep *)",
+      "Bash(taskkill *)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "shadcn"
+  ]
+}
