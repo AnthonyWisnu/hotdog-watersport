@@ -128,7 +128,7 @@ hotdog-watersport/
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/hotdog-watersport.git
+git clone https://github.com/AnthonyWisnu/hotdog-watersport.git
 
 # Navigate into the project
 cd hotdog-watersport
