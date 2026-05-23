@@ -5,8 +5,9 @@ import { ChevronDown } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { WhatsAppButton, Button } from "@/components/ui/Button";
 import BlurText from "@/components/animations/BlurText";
+import type { SiteSettingsData } from "@/lib/cms/settings";
 
-export default function HeroSection() {
+export default function HeroSection({ settings }: { settings: SiteSettingsData }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const reduced = useReducedMotion();
 
@@ -29,18 +30,26 @@ export default function HeroSection() {
       className="relative min-h-svh flex items-center justify-center overflow-hidden bg-surface-dark"
     >
       {/* Background video */}
-      <video
-        ref={videoRef}
-        className="absolute inset-0 w-full h-full object-cover opacity-50"
-        src="/videos/jetski.mp4"
-        poster="/images/about/bali-watersport.jpg"
-        muted
-        autoPlay
-        loop
-        playsInline
-        preload="none"
-        aria-hidden="true"
-      />
+      {settings.hero_media_url && settings.hero_media_type === "image" ? (
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-50"
+          style={{ backgroundImage: `url(${settings.hero_media_url})` }}
+          aria-hidden="true"
+        />
+      ) : (
+        <video
+          ref={videoRef}
+          className="absolute inset-0 w-full h-full object-cover opacity-50"
+          src={settings.hero_media_url || "/videos/jetski.mp4"}
+          poster="/images/about/bali-watersport.jpg"
+          muted
+          autoPlay
+          loop
+          playsInline
+          preload="none"
+          aria-hidden="true"
+        />
+      )}
 
       {/* Gradient overlay */}
       <div
@@ -62,7 +71,7 @@ export default function HeroSection() {
 
         {/* Headline with BlurText */}
         <BlurText
-          text="Ride the Wave. Feel Alive."
+          text={settings.hero_title}
           as="h1"
           delay={0.15}
           stagger={0.09}
@@ -76,8 +85,7 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: reduced ? 0 : 0.65, ease: [0.22, 1, 0.36, 1] }}
         >
-          Surfboards, jet skis, diving gear, and more. Premium equipment,
-          safety-first standards, and instant booking via WhatsApp.
+          {settings.hero_subtitle}
         </motion.p>
 
         {/* CTAs */}
@@ -87,14 +95,14 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: reduced ? 0 : 0.8, ease: [0.22, 1, 0.36, 1] }}
         >
-          <WhatsAppButton size="xl" />
+          <WhatsAppButton size="xl">{settings.hero_cta_text}</WhatsAppButton>
           <Button
             variant="ghost"
             size="lg"
             href="#services-preview"
             className="text-white border-white/30 hover:bg-white/10"
           >
-            Explore Services
+            {settings.hero_secondary_cta_text}
           </Button>
         </motion.div>
       </div>

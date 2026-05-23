@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import Link from "next/link";
 import Image from "next/image";
-import { GALLERY_ITEMS, GALLERY_CATEGORIES, GALLERY_PAGE_SIZE, type GalleryCategory } from "@/lib/gallery-data";
+import { GALLERY_CATEGORIES, GALLERY_PAGE_SIZE, type GalleryCategory, type GalleryItem } from "@/lib/gallery-data";
 import GlareHover from "@/components/animations/GlareHover";
 import Lightbox from "./Lightbox";
 
-export default function GalleryGrid() {
+export default function GalleryGrid({ items }: { items: GalleryItem[] }) {
   const [activeCategory, setActiveCategory] = useState<GalleryCategory>("all");
   const [visibleCount, setVisibleCount] = useState(GALLERY_PAGE_SIZE);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -14,8 +15,8 @@ export default function GalleryGrid() {
 
   const filtered =
     activeCategory === "all"
-      ? GALLERY_ITEMS
-      : GALLERY_ITEMS.filter((item) => item.category === activeCategory);
+      ? items
+      : items.filter((item) => item.category === activeCategory);
 
   const visible = filtered.slice(0, visibleCount);
   const hasMore = visibleCount < filtered.length;
@@ -56,7 +57,7 @@ export default function GalleryGrid() {
           <div className="mb-10">
             <nav aria-label="Breadcrumb" className="mb-4">
               <ol className="flex items-center gap-2 text-sm text-text-muted list-none p-0">
-                <li><a href="/" className="hover:text-text-primary transition-colors">Home</a></li>
+                <li><Link href="/" className="hover:text-text-primary transition-colors">Home</Link></li>
                 <li aria-hidden="true">/</li>
                 <li aria-current="page" className="text-text-primary font-medium">Gallery</li>
               </ol>

@@ -1,6 +1,6 @@
 import { WA_MESSAGES } from "./whatsapp";
 
-export type ServiceId = "surfing" | "jetski" | "diving" | "swimming";
+export type ServiceId = string;
 
 export interface ServiceData {
   id: ServiceId;

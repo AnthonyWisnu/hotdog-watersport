@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { FAQ_ITEMS, FAQ_CATEGORIES, type FAQCategory } from "@/lib/faq-data";
+import { FAQ_CATEGORIES, type FAQCategory, type FAQItem } from "@/lib/faq-data";
 
-export default function FAQAccordion() {
+export default function FAQAccordion({ items }: { items: FAQItem[] }) {
   const [activeCategory, setActiveCategory] = useState<FAQCategory>("general");
   const [openId, setOpenId] = useState<string | null>(null);
 
-  const filtered = FAQ_ITEMS.filter((item) => item.category === activeCategory);
+  const filtered = items.filter((item) => item.category === activeCategory);
 
   return (
     <section aria-labelledby="faq-heading" className="section-padding bg-surface">

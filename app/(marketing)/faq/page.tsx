@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/metadata";
 import FAQAccordion from "@/components/sections/faq/FAQAccordion";
 import SafetyStandards from "@/components/sections/faq/SafetyStandards";
+import { getPublishedFAQs } from "@/lib/cms/faqs";
 
 export const metadata: Metadata = buildMetadata({
   title: "FAQ & Safety",
@@ -10,11 +11,13 @@ export const metadata: Metadata = buildMetadata({
   path: "/faq",
 });
 
-export default function FAQPage() {
+export default async function FAQPage() {
+  const items = await getPublishedFAQs();
+
   return (
     <>
       <SafetyStandards />
-      <FAQAccordion />
+      <FAQAccordion items={items} />
     </>
   );
 }

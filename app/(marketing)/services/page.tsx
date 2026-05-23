@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/metadata";
-import { SERVICES } from "@/lib/services-data";
-import ServiceSection from "@/components/sections/services/ServiceSection";
+import { getPublishedServices } from "@/lib/cms/services";
+import ServicesGrid from "@/components/sections/services/ServicesGrid";
 
 export const metadata: Metadata = buildMetadata({
   title: "Our Services",
@@ -10,33 +10,7 @@ export const metadata: Metadata = buildMetadata({
   path: "/services",
 });
 
-export default function ServicesPage() {
-  return (
-    <>
-      {/* Sticky anchor nav */}
-      <nav
-        aria-label="Services navigation"
-        className="sticky top-16 z-30 bg-surface/90 backdrop-blur-md border-b border-border"
-      >
-        <div className="container-content">
-          <ul className="flex gap-6 py-3 overflow-x-auto text-sm font-medium">
-            {SERVICES.map((s) => (
-              <li key={s.id}>
-                <a
-                  href={`#${s.slug}`}
-                  className="text-text-muted hover:text-text-primary transition-colors whitespace-nowrap"
-                >
-                  {s.title}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </nav>
-
-      {SERVICES.map((service) => (
-        <ServiceSection key={service.id} service={service} />
-      ))}
-    </>
-  );
+export default async function ServicesPage() {
+  const services = await getPublishedServices();
+  return <ServicesGrid services={services} />;
 }

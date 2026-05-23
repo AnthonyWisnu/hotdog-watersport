@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import Script from "next/script";
+import PreviewBanner from "@/components/admin/PreviewBanner";
+import { isAdminPreviewEnabled } from "@/lib/admin/preview";
 import "./globals.css";
 
 const inter = Inter({
@@ -15,36 +17,40 @@ const playfairDisplay = Playfair_Display({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://hotdogwatersport.com"),
-  title: {
-    default: "PT Hot Dog Water Sport | Premium Water Sports Rental",
-    template: "%s | PT Hot Dog Water Sport",
-  },
-  description:
-    "Rent surfboards, jet skis, diving equipment, and swimming gear from PT Hot Dog Water Sport. Premium water sports rental with top safety standards.",
-  keywords: [
-    "water sports rental",
-    "jet ski rental",
-    "surfboard rental",
-    "diving equipment rental",
-    "water sports",
-  ],
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    siteName: "PT Hot Dog Water Sport",
-    images: [{ url: "/og-default.jpg", width: 1200, height: 630 }],
-  },
-  twitter: {
-    card: "summary_large_image",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true },
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const previewEnabled = await isAdminPreviewEnabled();
+
+  return {
+    metadataBase: new URL("https://hotdogwatersport.com"),
+    title: {
+      default: "PT Hot Dog Water Sport | Premium Water Sports Rental",
+      template: "%s | PT Hot Dog Water Sport",
+    },
+    description:
+      "Rent surfboards, jet skis, diving equipment, and swimming gear from PT Hot Dog Water Sport. Premium water sports rental with top safety standards.",
+    keywords: [
+      "water sports rental",
+      "jet ski rental",
+      "surfboard rental",
+      "diving equipment rental",
+      "water sports",
+    ],
+    openGraph: {
+      type: "website",
+      locale: "en_US",
+      siteName: "PT Hot Dog Water Sport",
+      images: [{ url: "/og-default.jpg", width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+    },
+    robots: {
+      index: !previewEnabled,
+      follow: !previewEnabled,
+      googleBot: { index: !previewEnabled, follow: !previewEnabled },
+    },
+  };
+}
 
 const localBusinessSchema = {
   "@context": "https://schema.org",
@@ -83,6 +89,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`h-full ${inter.variable} ${playfairDisplay.variable}`}
     >
       <head>
@@ -100,6 +107,7 @@ export default function RootLayout({
           Skip to main content
         </a>
         {children}
+        <PreviewBanner />
         {/* GA4, replace G-XXXXXXXXXX when live */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"

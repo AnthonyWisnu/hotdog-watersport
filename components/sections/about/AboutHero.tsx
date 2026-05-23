@@ -1,10 +1,12 @@
+import Link from "next/link";
+
 export default function AboutHero() {
   return (
     <section className="pt-32 pb-16 bg-surface-muted border-b border-border">
       <div className="container-content">
         <nav aria-label="Breadcrumb" className="mb-4">
           <ol className="flex items-center gap-2 text-sm text-text-muted list-none p-0">
-            <li><a href="/" className="hover:text-text-primary transition-colors">Home</a></li>
+            <li><Link href="/" className="hover:text-text-primary transition-colors">Home</Link></li>
             <li aria-hidden="true">/</li>
             <li aria-current="page" className="text-text-primary font-medium">About</li>
           </ol>

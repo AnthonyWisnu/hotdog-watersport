@@ -4,6 +4,7 @@ import AboutHero from "@/components/sections/about/AboutHero";
 import BrandStory from "@/components/sections/about/BrandStory";
 import CompanyValues from "@/components/sections/about/CompanyValues";
 import SafetyCommitment from "@/components/sections/about/SafetyCommitment";
+import { getBusinessProfile } from "@/lib/cms/settings";
 
 export const metadata: Metadata = buildMetadata({
   title: "About Us",
@@ -12,11 +13,13 @@ export const metadata: Metadata = buildMetadata({
   path: "/about",
 });
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const profile = await getBusinessProfile();
+
   return (
     <>
       <AboutHero />
-      <BrandStory />
+      <BrandStory profile={profile} />
       <CompanyValues />
       <SafetyCommitment />
     </>

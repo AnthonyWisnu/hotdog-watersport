@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/metadata";
 import ContactInfo from "@/components/sections/contact/ContactInfo";
+import { getSiteSettings } from "@/lib/cms/settings";
 
 export const metadata: Metadata = buildMetadata({
   title: "Contact Us",
@@ -9,6 +10,7 @@ export const metadata: Metadata = buildMetadata({
   path: "/contact",
 });
 
-export default function ContactPage() {
-  return <ContactInfo />;
+export default async function ContactPage() {
+  const settings = await getSiteSettings();
+  return <ContactInfo settings={settings} />;
 }

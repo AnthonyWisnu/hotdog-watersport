@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/metadata";
+import { getPublishedGalleryItems } from "@/lib/cms/gallery";
 import GalleryGrid from "@/components/sections/gallery/GalleryGrid";
 
 export const metadata: Metadata = buildMetadata({
@@ -9,6 +10,7 @@ export const metadata: Metadata = buildMetadata({
   path: "/gallery",
 });
 
-export default function GalleryPage() {
-  return <GalleryGrid />;
+export default async function GalleryPage() {
+  const items = await getPublishedGalleryItems();
+  return <GalleryGrid items={items} />;
 }

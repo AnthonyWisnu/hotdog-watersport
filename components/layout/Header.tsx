@@ -33,9 +33,6 @@ export default function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close menu on route change
-  useEffect(() => setMobileOpen(false), [pathname]);
-
   // Lock body scroll + focus management for mobile menu
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
@@ -160,6 +157,7 @@ export default function Header() {
                     key={href}
                     href={href}
                     aria-current={active ? "page" : undefined}
+                    onClick={() => setMobileOpen(false)}
                     className={`
                       py-4 text-2xl font-display font-semibold border-b border-border-muted
                       transition-colors

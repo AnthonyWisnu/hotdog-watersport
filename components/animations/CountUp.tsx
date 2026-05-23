@@ -28,11 +28,15 @@ export default function CountUp({
 
   useEffect(() => {
     if (!inView || hasStarted.current) return;
-    if (reduced) { setValue(end); return; }
+    if (reduced) {
+      hasStarted.current = true;
+      return;
+    }
 
     hasStarted.current = true;
     const startTime = performance.now();
     const totalMs = duration * 1000;
+    let animationFrame = 0;
 
     const tick = (now: number) => {
       const elapsed = now - startTime;
@@ -40,15 +44,18 @@ export default function CountUp({
       // ease-out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
       setValue(parseFloat((eased * end).toFixed(decimals)));
-      if (progress < 1) requestAnimationFrame(tick);
+      if (progress < 1) animationFrame = requestAnimationFrame(tick);
     };
 
-    requestAnimationFrame(tick);
+    animationFrame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animationFrame);
   }, [inView, reduced, end, duration, decimals]);
+
+  const displayValue = reduced && inView ? end : value;
 
   return (
     <span ref={ref} className={className} aria-live="polite">
-      {prefix}{value.toLocaleString()}{suffix}
+      {prefix}{displayValue.toLocaleString()}{suffix}
     </span>
   );
 }

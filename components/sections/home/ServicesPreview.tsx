@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Waves, Zap, Anchor, Droplets } from "lucide-react";
-import { SERVICES } from "@/lib/services-data";
+import type { CmsService } from "@/lib/cms/services";
 import ScrollReveal, { StaggerReveal, StaggerItem } from "@/components/animations/ScrollReveal";
 import SpotlightCard from "@/components/animations/SpotlightCard";
 
@@ -9,7 +9,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
   Waves, Zap, Anchor, Droplets,
 };
 
-export default function ServicesPreview() {
+export default function ServicesPreview({ services }: { services: CmsService[] }) {
   return (
     <section
       id="services-preview"
@@ -44,7 +44,7 @@ export default function ServicesPreview() {
           stagger={0.1}
           delay={0.1}
         >
-          {SERVICES.map((service) => {
+          {services.slice(0, 4).map((service) => {
             const Icon = ICON_MAP[service.icon] ?? Waves;
             return (
               <StaggerItem key={service.id}>

@@ -1,13 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import { GALLERY_ITEMS } from "@/lib/gallery-data";
+import type { GalleryItem } from "@/lib/gallery-data";
 import ScrollReveal, { StaggerReveal, StaggerItem } from "@/components/animations/ScrollReveal";
 import GlareHover from "@/components/animations/GlareHover";
 
-export default function GalleryTeaser() {
-  const preview = GALLERY_ITEMS.slice(0, 6);
-
+export default function GalleryTeaser({ items }: { items: GalleryItem[] }) {
+  const preview = items.slice(0, 6);
   return (
     <section
       aria-labelledby="gallery-teaser-heading"

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ShieldCheck, Wrench, MessageCircle, HardHat, AlertTriangle } from "lucide-react";
 
 const STANDARDS = [
@@ -29,7 +30,7 @@ export default function SafetyStandards() {
       <div className="container-content">
         <nav aria-label="Breadcrumb" className="mb-8">
           <ol className="flex items-center gap-2 text-sm text-white/50 list-none p-0">
-            <li><a href="/" className="hover:text-white/80 transition-colors">Home</a></li>
+            <li><Link href="/" className="hover:text-white/80 transition-colors">Home</Link></li>
             <li aria-hidden="true">/</li>
             <li aria-current="page" className="text-white/80 font-medium">FAQ & Safety</li>
           </ol>
