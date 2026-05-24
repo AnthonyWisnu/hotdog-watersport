@@ -370,6 +370,175 @@ Done when:
 - `npm run lint` passes.
 - `npm run build` passes.
 
+## Phase 13 - Media Library and Logo CMS
+
+Status: Done. Added `/admin/media` for reusable Supabase Storage assets, media upload/edit/archive/safe delete, usage labels, logo/footer logo/favicon selection in settings, CMS-powered header/footer logos, metadata favicon support, and a seed script for the existing local logo fallback.
+
+Purpose: make Supabase Storage the primary source for production media and let admins manage reusable assets from one place.
+
+Tasks:
+
+- Add `/admin/media`.
+- Build media library list with image/video filters.
+- Support search by filename, alt text, caption, media type, and status.
+- Support upload from media library.
+- Support edit alt text, caption, and status.
+- Support archive/delete media assets safely.
+- Show where each media asset is used when possible.
+- Add logo management to `/admin/settings`.
+- Support main logo, footer logo, favicon, and OG image from media library.
+- Add image preview for current logo/media selections.
+- Store logo relationships in `site_settings`.
+- Render header/footer logo from CMS settings.
+- Keep local `/public/logo/logo.jpg` only as development/fallback asset.
+
+Suggested schema changes:
+
+- Add `site_settings.logo_media_id`.
+- Add `site_settings.footer_logo_media_id`.
+- Add `site_settings.favicon_media_id`.
+- Add indexes for those media references.
+
+Done when:
+
+- Admin can upload, browse, edit, and reuse media from `/admin/media`.
+- Admin can replace the site logo without touching files.
+- Header and footer use CMS logo when configured.
+- Favicon/OG image can be managed from admin.
+- Production visuals no longer require manually placing new files under `/public`.
+
+## Phase 14 - Controlled Taxonomy
+
+Status: Done. Added shared taxonomy constants, replaced free-text service categories/badges, gallery categories, and FAQ categories with checkbox/dropdown controls, added server-side taxonomy validation, and migrated existing category values. Phase 16 supersedes the temporary static database check constraints with database-backed taxonomy validation.
+
+Purpose: replace free-text category and badge inputs with controlled dropdowns/multiselects so admin data stays consistent.
+
+Tasks:
+
+- Add taxonomy tables or constants for controlled options.
+- Add service category options such as:
+  - Speed
+  - Adrenaline Rush
+  - Sky Experience
+  - Fun & Leisure
+  - Ocean Discovery
+  - Family Friendly
+  - Beginner Friendly
+- Add gallery category options such as:
+  - Water Sports
+  - Diving
+  - Snorkeling
+  - Tours
+  - Promo
+  - Facility
+- Add FAQ category options such as:
+  - General
+  - Booking
+  - Safety
+  - Equipment
+  - Location
+  - Payment
+- Add badge options such as:
+  - None
+  - Popular
+  - Best Seller
+  - New
+  - Limited
+- Replace category text inputs with dropdowns, checkboxes, or multiselect controls.
+- Replace badge text inputs with dropdowns.
+- Add validation so invalid taxonomy values cannot be saved.
+- Migrate existing seeded category strings to the controlled values.
+
+Done when:
+
+- Admin no longer types category/badge values manually.
+- Public filters use controlled taxonomy data.
+- Existing services, gallery items, and FAQs map cleanly to controlled categories.
+- Invalid category/badge values are rejected by server-side admin validation.
+
+## Phase 15 - Remove Public Asset Dependency
+
+Status: Done. Added admin best-practice guidance, strengthened publish validation, made service uploads role-aware with cover/gallery/promo video support, required service cover images before publish, required alt text for published gallery items, added database safety constraints, and shifted homepage/about/service fallbacks toward CMS media before local `/public` fallbacks.
+
+Purpose: make admin-managed Supabase media the production source of truth while keeping local assets only as safe fallbacks.
+
+Tasks:
+
+- Audit all remaining direct `/public/images`, `/public/videos`, and `/public/logo` references.
+- Replace production-facing image/video usage with CMS media where available.
+- Keep fallback media only for development or empty CMS states.
+- Add publish validation rules:
+  - Service cannot publish without at least one cover image.
+  - Gallery item cannot publish without media and alt text.
+  - Hero should warn before publish if no CMS media is selected.
+  - Logo should warn if no CMS logo is selected.
+- Add admin empty states explaining which required media is missing.
+- Add optional one-time seed/import script for existing local assets.
+- Document that new production media must be uploaded through admin.
+
+Done when:
+
+- New production media changes are fully possible through admin.
+- No normal admin workflow requires copying files into `/public`.
+- Public pages still render cleanly if CMS media is missing.
+- `npm run lint` passes.
+- `npm run build` passes.
+
+## Phase 16 - Taxonomy CMS
+
+Status: Done. Added `taxonomies` table with RLS, seeded existing controlled options, added `/admin/taxonomy`, wired service/gallery/FAQ admin forms to active taxonomy records, moved public service/gallery/FAQ filters to CMS taxonomy data, added server-side active taxonomy validation, and protected used values from unsafe deletion/value changes.
+
+Purpose: move controlled category and badge options out of code and into the admin, so future service/gallery/FAQ taxonomy changes do not require developer edits.
+
+Taxonomy groups to manage:
+
+- Service categories
+- Service badges
+- Gallery categories
+- FAQ categories
+
+Recommended schema:
+
+- `taxonomies`
+  - `id`
+  - `taxonomy_group` such as `service_category`, `service_badge`, `gallery_category`, `faq_category`
+  - `value` internal slug used by existing content
+  - `label` admin/public display label
+  - `description`
+  - `sort_order`
+  - `status` such as `active`, `inactive`, `archived`
+  - `created_by`
+  - `updated_by`
+  - `created_at`
+  - `updated_at`
+
+Tasks:
+
+- Create taxonomy database table with RLS.
+- Seed current values from `lib/taxonomy.ts`.
+- Add `/admin/taxonomy` or `/admin/categories`.
+- Build grouped list view for service categories, service badges, gallery categories, and FAQ categories.
+- Support create, edit, archive, and reorder with Move Up/Move Down.
+- Replace hardcoded taxonomy reads with database-backed reads.
+- Keep fallback defaults from `lib/taxonomy.ts` if taxonomy records are missing.
+- Update service category checkboxes and badge dropdown to read active taxonomy options.
+- Update gallery category dropdown to read active taxonomy options.
+- Update FAQ category dropdown to read active taxonomy options.
+- Validate submitted taxonomy values against active database records.
+- Prevent deleting taxonomy values that are still used by services, gallery items, or FAQs.
+- Prefer archive/inactive over hard delete for values that may exist in historical content.
+- Add empty states that explain when no active options exist for a taxonomy group.
+
+Done when:
+
+- Admin can manage service/gallery/FAQ categories and service badges without editing code.
+- Existing content keeps working after taxonomy values are seeded.
+- Forms only show active taxonomy options.
+- Used taxonomy values cannot be accidentally deleted.
+- Public pages render labels from the taxonomy CMS where appropriate.
+- `npm run lint` passes.
+- `npm run build` passes.
+
 ## Suggested Work Order
 
 1. Phase 0
@@ -385,6 +554,10 @@ Done when:
 11. Phase 10
 12. Phase 11
 13. Phase 12
+14. Phase 13
+15. Phase 14
+16. Phase 15
+17. Phase 16
 
 ## Notes for Future Implementation
 
@@ -394,3 +567,4 @@ Done when:
 - Use server-side reads for public pages where SEO matters.
 - Use client-side admin forms for editing workflows.
 - Avoid adding a complex role system until there is a real need for more than admin/editor.
+- Treat `/public` assets as fallback/dev assets after Phase 15, not as the production content workflow.

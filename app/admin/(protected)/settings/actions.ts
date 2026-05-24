@@ -82,3 +82,51 @@ export async function setOgImage(mediaAssetId: string) {
   revalidatePath("/");
   revalidatePath("/admin/settings");
 }
+
+export async function updateBrandMedia(formData: FormData) {
+  const { user } = await requireAdmin();
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("site_settings")
+    .update({
+      logo_media_id: value(formData, "logo_media_id"),
+      footer_logo_media_id: value(formData, "footer_logo_media_id"),
+      favicon_media_id: value(formData, "favicon_media_id"),
+      updated_by: user.id,
+    })
+    .eq("settings_key", "default");
+
+  if (error) {
+    throw error;
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin/settings");
+}
+
+export async function setBrandMedia(
+  target: "logo" | "footer_logo" | "favicon",
+  mediaAssetId: string
+) {
+  const { user } = await requireAdmin();
+  const supabase = await createClient();
+  const payload =
+    target === "logo"
+      ? { logo_media_id: mediaAssetId, updated_by: user.id }
+      : target === "footer_logo"
+        ? { footer_logo_media_id: mediaAssetId, updated_by: user.id }
+        : { favicon_media_id: mediaAssetId, updated_by: user.id };
+
+  const { error } = await supabase
+    .from("site_settings")
+    .update(payload)
+    .eq("settings_key", "default");
+
+  if (error) {
+    throw error;
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin/settings");
+}

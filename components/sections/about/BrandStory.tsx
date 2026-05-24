@@ -1,12 +1,21 @@
 import Image from "next/image";
 import ScrollReveal from "@/components/animations/ScrollReveal";
 import type { BusinessProfileData } from "@/lib/cms/settings";
+import type { GalleryItem } from "@/lib/gallery-data";
 
-export default function BrandStory({ profile }: { profile: BusinessProfileData }) {
+export default function BrandStory({
+  profile,
+  images = [],
+}: {
+  profile: BusinessProfileData;
+  images?: GalleryItem[];
+}) {
   const paragraphs = (profile.brand_story || profile.about_text || "")
     .split(/\n{2,}/)
     .map((paragraph) => paragraph.trim())
     .filter(Boolean);
+  const primaryImage = images[0];
+  const secondaryImage = images[1] || images[0];
 
   return (
     <section aria-labelledby="brand-story-heading" className="section-padding bg-surface">
@@ -43,8 +52,8 @@ export default function BrandStory({ profile }: { profile: BusinessProfileData }
           <div className="relative h-[480px]">
             <div className="absolute top-0 right-0 w-3/4 h-3/4 rounded-2xl overflow-hidden shadow-xl">
               <Image
-                src="/images/about/bali-watersport.jpg"
-                alt="Water sports team preparing equipment at sunrise"
+                src={primaryImage?.src || "/images/about/bali-watersport.jpg"}
+                alt={primaryImage?.alt || "Water sports team preparing equipment"}
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 75vw, 37.5vw"
@@ -52,8 +61,8 @@ export default function BrandStory({ profile }: { profile: BusinessProfileData }
             </div>
             <div className="absolute bottom-0 left-0 w-1/2 h-1/2 rounded-2xl overflow-hidden border-4 border-surface shadow-xl">
               <Image
-                src="/images/about/jetski.jpg"
-                alt="Jet ski equipment ready for rental"
+                src={secondaryImage?.src || "/images/about/jetski.jpg"}
+                alt={secondaryImage?.alt || "Water sports equipment ready for rental"}
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 50vw, 25vw"

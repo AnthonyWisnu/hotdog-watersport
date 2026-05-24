@@ -35,13 +35,13 @@ export default async function HomePage() {
 
   return (
     <>
-      <HeroSection settings={settings} />
+      <HeroSection settings={settings} fallbackHeroMediaUrl={galleryItems[0]?.src} />
       <BrandStatement />
       <ServicesPreview services={services} />
       <GalleryTeaser items={galleryItems} />
       <WhyChooseUs />
       <TestimonialsSection testimonials={testimonials} />
-      <CTABanner />
+      <CTABanner backgroundUrl={galleryItems[0]?.src} />
     </>
   );
 }

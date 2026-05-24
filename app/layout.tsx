@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import Script from "next/script";
 import PreviewBanner from "@/components/admin/PreviewBanner";
 import { isAdminPreviewEnabled } from "@/lib/admin/preview";
+import { getSiteSettings } from "@/lib/cms/settings";
 import "./globals.css";
 
 const inter = Inter({
@@ -19,14 +20,16 @@ const playfairDisplay = Playfair_Display({
 
 export async function generateMetadata(): Promise<Metadata> {
   const previewEnabled = await isAdminPreviewEnabled();
+  const settings = await getSiteSettings();
 
   return {
     metadataBase: new URL("https://hotdogwatersport.com"),
     title: {
-      default: "PT Hot Dog Water Sport | Premium Water Sports Rental",
+      default: settings.meta_title || "PT Hot Dog Water Sport | Premium Water Sports Rental",
       template: "%s | PT Hot Dog Water Sport",
     },
     description:
+      settings.meta_description ||
       "Rent surfboards, jet skis, diving equipment, and swimming gear from PT Hot Dog Water Sport. Premium water sports rental with top safety standards.",
     keywords: [
       "water sports rental",
@@ -39,8 +42,9 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       locale: "en_US",
       siteName: "PT Hot Dog Water Sport",
-      images: [{ url: "/og-default.jpg", width: 1200, height: 630 }],
+      images: [{ url: settings.og_image_url || "/og-default.jpg", width: 1200, height: 630 }],
     },
+    icons: settings.favicon_url ? { icon: settings.favicon_url } : undefined,
     twitter: {
       card: "summary_large_image",
     },

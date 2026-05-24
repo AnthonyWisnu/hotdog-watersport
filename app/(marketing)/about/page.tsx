@@ -5,6 +5,7 @@ import BrandStory from "@/components/sections/about/BrandStory";
 import CompanyValues from "@/components/sections/about/CompanyValues";
 import SafetyCommitment from "@/components/sections/about/SafetyCommitment";
 import { getBusinessProfile } from "@/lib/cms/settings";
+import { getGalleryPreviewItems } from "@/lib/cms/gallery";
 
 export const metadata: Metadata = buildMetadata({
   title: "About Us",
@@ -14,12 +15,15 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default async function AboutPage() {
-  const profile = await getBusinessProfile();
+  const [profile, galleryItems] = await Promise.all([
+    getBusinessProfile(),
+    getGalleryPreviewItems(),
+  ]);
 
   return (
     <>
       <AboutHero />
-      <BrandStory profile={profile} />
+      <BrandStory profile={profile} images={galleryItems.slice(0, 2)} />
       <CompanyValues />
       <SafetyCommitment />
     </>

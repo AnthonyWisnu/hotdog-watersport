@@ -1,9 +1,4 @@
-export type FAQCategory =
-  | "general"
-  | "booking"
-  | "safety"
-  | "equipment"
-  | "location";
+export type FAQCategory = string;
 
 export interface FAQItem {
   id: string;
@@ -139,10 +134,11 @@ export const FAQ_ITEMS: FAQItem[] = [
   },
 ];
 
-export const FAQ_CATEGORIES: { id: FAQCategory; label: string }[] = [
-  { id: "general", label: "General" },
-  { id: "booking", label: "Booking" },
-  { id: "safety", label: "Safety" },
-  { id: "equipment", label: "Equipment" },
-  { id: "location", label: "Location" },
+export const FAQ_CATEGORIES: { value: FAQCategory; label: string }[] = [
+  { value: "general", label: "General" },
+  { value: "booking", label: "Booking" },
+  { value: "safety", label: "Safety" },
+  { value: "equipment", label: "Equipment" },
+  { value: "location", label: "Location" },
+  { value: "payment", label: "Payment" },
 ];

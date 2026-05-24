@@ -7,9 +7,23 @@ import { WhatsAppButton, Button } from "@/components/ui/Button";
 import BlurText from "@/components/animations/BlurText";
 import type { SiteSettingsData } from "@/lib/cms/settings";
 
-export default function HeroSection({ settings }: { settings: SiteSettingsData }) {
+export default function HeroSection({
+  settings,
+  fallbackHeroMediaUrl,
+}: {
+  settings: SiteSettingsData;
+  fallbackHeroMediaUrl?: string | null;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const reduced = useReducedMotion();
+  const heroImageUrl =
+    settings.hero_media_type === "image"
+      ? settings.hero_media_url
+      : settings.hero_media_url
+        ? null
+        : fallbackHeroMediaUrl;
+  const heroVideoUrl =
+    settings.hero_media_type === "video" ? settings.hero_media_url : null;
 
   useEffect(() => {
     const handleVisibility = () => {
@@ -30,18 +44,18 @@ export default function HeroSection({ settings }: { settings: SiteSettingsData }
       className="relative min-h-svh flex items-center justify-center overflow-hidden bg-surface-dark"
     >
       {/* Background video */}
-      {settings.hero_media_url && settings.hero_media_type === "image" ? (
+      {heroImageUrl ? (
         <div
           className="absolute inset-0 bg-cover bg-center opacity-50"
-          style={{ backgroundImage: `url(${settings.hero_media_url})` }}
+          style={{ backgroundImage: `url(${heroImageUrl})` }}
           aria-hidden="true"
         />
       ) : (
         <video
           ref={videoRef}
           className="absolute inset-0 w-full h-full object-cover opacity-50"
-          src={settings.hero_media_url || "/videos/jetski.mp4"}
-          poster="/images/about/bali-watersport.jpg"
+          src={heroVideoUrl || "/videos/jetski.mp4"}
+          poster={heroVideoUrl ? undefined : "/images/about/bali-watersport.jpg"}
           muted
           autoPlay
           loop

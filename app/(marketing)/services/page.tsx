@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/metadata";
 import { getPublishedServices } from "@/lib/cms/services";
+import { getActiveTaxonomyOptions } from "@/lib/cms/taxonomies";
 import ServicesGrid from "@/components/sections/services/ServicesGrid";
 
 export const metadata: Metadata = buildMetadata({
@@ -11,6 +12,10 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default async function ServicesPage() {
-  const services = await getPublishedServices();
-  return <ServicesGrid services={services} />;
+  const [services, categories] = await Promise.all([
+    getPublishedServices(),
+    getActiveTaxonomyOptions("service_category"),
+  ]);
+
+  return <ServicesGrid services={services} categories={categories} />;
 }

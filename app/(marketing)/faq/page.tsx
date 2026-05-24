@@ -3,6 +3,7 @@ import { buildMetadata } from "@/lib/metadata";
 import FAQAccordion from "@/components/sections/faq/FAQAccordion";
 import SafetyStandards from "@/components/sections/faq/SafetyStandards";
 import { getPublishedFAQs } from "@/lib/cms/faqs";
+import { getActiveTaxonomyOptions } from "@/lib/cms/taxonomies";
 
 export const metadata: Metadata = buildMetadata({
   title: "FAQ & Safety",
@@ -12,12 +13,15 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default async function FAQPage() {
-  const items = await getPublishedFAQs();
+  const [items, categories] = await Promise.all([
+    getPublishedFAQs(),
+    getActiveTaxonomyOptions("faq_category"),
+  ]);
 
   return (
     <>
       <SafetyStandards />
-      <FAQAccordion items={items} />
+      <FAQAccordion items={items} categories={categories} />
     </>
   );
 }

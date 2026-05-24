@@ -2,22 +2,17 @@
 
 import { useState } from "react";
 import type { CmsService } from "@/lib/cms/services";
+import { SERVICE_CATEGORY_OPTIONS, type TaxonomyOption } from "@/lib/taxonomy";
 import ServiceCard, { type ServiceCardMeta } from "./ServiceCard";
 
-const CATEGORIES = [
-  "All",
-  "Speed",
-  "Adrenaline Rush",
-  "Sky Experience",
-  "Fun & Leisure",
-  "Ocean Discovery",
-] as const;
+function getServiceMeta(
+  service: CmsService,
+  labelByValue: Map<string, string>
+): ServiceCardMeta {
+  const categoryValue = service.categoryLabels[0] || "Fun & Leisure";
 
-type Category = (typeof CATEGORIES)[number];
-
-function getServiceMeta(service: CmsService): ServiceCardMeta {
   return {
-    category: service.categoryLabels[0] || "Fun & Leisure",
+    category: labelByValue.get(categoryValue) || categoryValue,
     duration: service.duration || "Ask for duration",
     price: service.price || "Ask for price",
     rating: Math.round(service.rating || 5),
@@ -25,15 +20,28 @@ function getServiceMeta(service: CmsService): ServiceCardMeta {
   };
 }
 
-export default function ServicesGrid({ services }: { services: CmsService[] }) {
-  const [activeCategory, setActiveCategory] = useState<Category>("All");
+export default function ServicesGrid({
+  services,
+  categories = SERVICE_CATEGORY_OPTIONS,
+}: {
+  services: CmsService[];
+  categories?: readonly TaxonomyOption[];
+}) {
+  const [activeCategory, setActiveCategory] = useState("All");
+  const labelByValue = new Map(
+    categories.map((category) => [category.value, category.label])
+  );
 
   const filteredServices =
     activeCategory === "All"
       ? services
-      : services.filter(
-          (service) => getServiceMeta(service).category === activeCategory
+      : services.filter((service) =>
+          service.categoryLabels.includes(activeCategory)
         );
+  const categoryTabs = [
+    { value: "All", label: "All" },
+    ...categories,
+  ];
 
   return (
     <section aria-labelledby="services-heading" className="pt-32 pb-24">
@@ -54,21 +62,21 @@ export default function ServicesGrid({ services }: { services: CmsService[] }) {
           aria-label="Filter services by category"
           className="mb-20 flex gap-3 overflow-x-auto pb-2"
         >
-          {CATEGORIES.map((category) => {
-            const isActive = activeCategory === category;
+          {categoryTabs.map((category) => {
+            const isActive = activeCategory === category.value;
             return (
               <button
-                key={category}
+                key={category.value}
                 type="button"
                 aria-pressed={isActive}
-                onClick={() => setActiveCategory(category)}
+                onClick={() => setActiveCategory(category.value)}
                 className={`shrink-0 rounded-full px-7 py-3 text-sm font-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
                   isActive
                     ? "bg-primary text-white"
                     : "border border-slate-300 bg-white text-[#0A0F1A] hover:border-primary hover:text-primary"
                 }`}
               >
-                {category}
+                {category.label}
               </button>
             );
           })}
@@ -80,7 +88,7 @@ export default function ServicesGrid({ services }: { services: CmsService[] }) {
               <ServiceCard
                 key={service.id}
                 service={service}
-                meta={getServiceMeta(service)}
+                meta={getServiceMeta(service, labelByValue)}
               />
             ))}
           </div>

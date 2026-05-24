@@ -1,23 +1,81 @@
 import AdminCard from "@/components/admin/AdminCard";
 import AdminFormActions from "@/components/admin/AdminFormActions";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { getAdminMediaAssets } from "@/lib/cms/media";
 import { getSiteSettings } from "@/lib/cms/settings";
-import { updateSiteSettings } from "./actions";
+import { updateBrandMedia, updateSiteSettings } from "./actions";
 import HeroMediaUploader from "./HeroMediaUploader";
+import LogoMediaUploader from "./LogoMediaUploader";
 import OgImageUploader from "./OgImageUploader";
 import AdminState from "@/components/admin/AdminState";
 
 export default async function AdminSettingsPage() {
   const settings = await getSiteSettings();
+  const imageAssets = await getAdminMediaAssets({ mediaType: "image" });
   const missingSeo = !settings.meta_title || !settings.meta_description;
+  const missingHeroMedia = !settings.hero_media_id;
+  const missingLogo = !settings.logo_media_id;
 
   return (
     <div className="max-w-5xl">
       <AdminPageHeader
         eyebrow="Settings"
         title="Hero, Contact, and Location"
-        description="Update homepage hero copy, contact details, social links, map embed, and SEO defaults."
+        description="Update logo media, homepage hero copy, contact details, social links, map embed, and SEO defaults."
       />
+      <div className="space-y-6">
+      <AdminCard
+        title="Logo and Brand Media"
+        description="Choose existing images from the media library or upload new logo files directly from admin."
+      >
+        <div className="grid gap-5 lg:grid-cols-3">
+          <MediaPreview label="Header Logo" src={settings.logo_url || "/logo/logo.jpg"} />
+          <MediaPreview label="Footer Logo" src={settings.footer_logo_url || settings.logo_url || "/logo/logo.jpg"} />
+          <MediaPreview label="Favicon" src={settings.favicon_url || "/favicon.ico"} />
+        </div>
+        {missingLogo ? (
+          <div className="mt-4">
+            <AdminState
+              variant="error"
+              title="CMS logo missing"
+              description="Select or upload a header logo so production does not rely on the local fallback logo."
+            />
+          </div>
+        ) : null}
+        <form action={updateBrandMedia} className="mt-5 grid gap-4 md:grid-cols-3">
+          <MediaSelect
+            name="logo_media_id"
+            label="Header Logo"
+            value={settings.logo_media_id || ""}
+            assets={imageAssets}
+          />
+          <MediaSelect
+            name="footer_logo_media_id"
+            label="Footer Logo"
+            value={settings.footer_logo_media_id || ""}
+            assets={imageAssets}
+          />
+          <MediaSelect
+            name="favicon_media_id"
+            label="Favicon"
+            value={settings.favicon_media_id || ""}
+            assets={imageAssets}
+          />
+          <div className="md:col-span-3">
+            <AdminFormActions>
+              <button className="rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark">
+                Save Brand Media
+              </button>
+            </AdminFormActions>
+          </div>
+        </form>
+        <div className="mt-5 grid gap-4 md:grid-cols-3">
+          <LogoMediaUploader target="logo" label="Upload Header Logo" />
+          <LogoMediaUploader target="footer_logo" label="Upload Footer Logo" />
+          <LogoMediaUploader target="favicon" label="Upload Favicon" />
+        </div>
+      </AdminCard>
+
       <form action={updateSiteSettings}>
         <AdminCard>
           <div className="mb-6">
@@ -31,6 +89,15 @@ export default async function AdminSettingsPage() {
                   variant="error"
                   title="SEO fields incomplete"
                   description="Fill in Default Meta Title and Default Meta Description before publishing final SEO changes."
+                />
+              </div>
+            ) : null}
+            {missingHeroMedia ? (
+              <div className="mt-4">
+                <AdminState
+                  variant="error"
+                  title="Hero media missing"
+                  description="Upload a hero image or video so the homepage does not rely on the local fallback video."
                 />
               </div>
             ) : null}
@@ -61,7 +128,50 @@ export default async function AdminSettingsPage() {
           </div>
         </AdminCard>
       </form>
+      </div>
     </div>
+  );
+}
+
+function MediaPreview({ label, src }: { label: string; src: string }) {
+  return (
+    <div className="rounded-md border border-border bg-surface-muted p-4">
+      <p className="text-sm font-medium text-text-primary">{label}</p>
+      <div className="mt-3 flex h-28 items-center justify-center overflow-hidden rounded-md bg-white">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt={label} className="max-h-full max-w-full object-contain" />
+      </div>
+    </div>
+  );
+}
+
+function MediaSelect({
+  label,
+  name,
+  value,
+  assets,
+}: {
+  label: string;
+  name: string;
+  value: string;
+  assets: Array<{ id: string; path: string }>;
+}) {
+  return (
+    <label className="block text-sm font-medium text-text-primary">
+      {label}
+      <select
+        name={name}
+        defaultValue={value}
+        className="mt-2 w-full rounded-md border border-border px-3 py-2 text-sm"
+      >
+        <option value="">Fallback default</option>
+        {assets.map((asset) => (
+          <option key={asset.id} value={asset.id}>
+            {asset.path}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
 

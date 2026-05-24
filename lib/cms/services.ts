@@ -16,6 +16,7 @@ export interface CmsService extends ServiceData {
 }
 
 interface ServiceMediaRow {
+  media_role: "cover" | "gallery" | "promo_video";
   sort_order: number;
   alt_text: string | null;
   media_assets: {
@@ -56,7 +57,13 @@ async function createSignedImageUrls(media: ServiceMediaRow[] = []) {
         item.media_assets?.media_type === "image" &&
         item.media_assets.status === "published"
     )
-    .sort((a, b) => a.sort_order - b.sort_order);
+    .sort((a, b) => {
+      if (a.media_role === b.media_role) {
+        return a.sort_order - b.sort_order;
+      }
+
+      return a.media_role === "cover" ? -1 : 1;
+    });
 
   const urls = await Promise.all(
     imageMedia.map(async (item) => {
@@ -72,9 +79,57 @@ async function createSignedImageUrls(media: ServiceMediaRow[] = []) {
   return urls.filter((url): url is string => Boolean(url));
 }
 
-async function mapServiceRow(row: ServiceRow, index: number): Promise<CmsService> {
+async function getGalleryFallbackImages() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("gallery_items")
+    .select("sort_order, media_assets(path, media_type, status)")
+    .eq("status", "published")
+    .order("sort_order", { ascending: true })
+    .limit(12);
+
+  if (error || !data) {
+    return [];
+  }
+
+  const rows = data as unknown as Array<{
+    media_assets: {
+      path: string;
+      media_type: "image" | "video";
+      status: "draft" | "published" | "archived";
+    } | null;
+  }>;
+
+  const urls = await Promise.all(
+    rows
+      .filter(
+        (item) =>
+          item.media_assets?.media_type === "image" &&
+          item.media_assets.status === "published"
+      )
+      .map(async (item) => {
+        const path = item.media_assets?.path;
+        if (!path) return null;
+
+        const { data: signed } = await supabase.storage
+          .from(SITE_MEDIA_BUCKET)
+          .createSignedUrl(path, 3600);
+
+        return signed?.signedUrl || null;
+      })
+  );
+
+  return urls.filter((url): url is string => Boolean(url));
+}
+
+async function mapServiceRow(
+  row: ServiceRow,
+  index: number,
+  fallbackImages: string[]
+): Promise<CmsService> {
   const fallback = SERVICES[index % SERVICES.length];
   const signedImages = await createSignedImageUrls(row.service_media);
+  const cmsFallbackImage = fallbackImages[index % fallbackImages.length];
 
   return {
     id: row.id,
@@ -92,7 +147,12 @@ async function mapServiceRow(row: ServiceRow, index: number): Promise<CmsService
     equipment: row.equipment || [],
     rentalInfo: row.rental_info || "",
     operationalNotes: row.operational_notes || "",
-    images: signedImages.length > 0 ? signedImages : fallback.images,
+    images:
+      signedImages.length > 0
+        ? signedImages
+        : cmsFallbackImage
+          ? [cmsFallbackImage]
+          : fallback.images,
     whatsappMessage: row.whatsapp_message || "",
     icon: fallback.icon || DEFAULT_ICONS[index % DEFAULT_ICONS.length],
     status: row.status,
@@ -106,7 +166,7 @@ export async function getPublishedServices(): Promise<CmsService[]> {
   let query = supabase
     .from("services")
     .select(
-      "*, service_media(sort_order, alt_text, media_assets(path, media_type, status))"
+      "*, service_media(media_role, sort_order, alt_text, media_assets(path, media_type, status))"
     )
     .order("sort_order", { ascending: true })
     .order("title", { ascending: true });
@@ -124,9 +184,11 @@ export async function getPublishedServices(): Promise<CmsService[]> {
     }));
   }
 
+  const fallbackImages = await getGalleryFallbackImages();
+
   return Promise.all(
     (data as unknown as ServiceRow[]).map((row, index) =>
-      mapServiceRow(row, index)
+      mapServiceRow(row, index, fallbackImages)
     )
   );
 }

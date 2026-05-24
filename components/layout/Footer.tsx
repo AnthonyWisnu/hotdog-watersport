@@ -19,7 +19,11 @@ const SERVICES_LINKS = [
   { href: "/services#swimming", label: "Swimming Gear" },
 ];
 
-export default function Footer() {
+interface FooterProps {
+  logoUrl?: string | null;
+}
+
+export default function Footer({ logoUrl }: FooterProps) {
   const year = new Date().getFullYear();
 
   return (
@@ -28,7 +32,7 @@ export default function Footer() {
         {/* Brand */}
         <div className="lg:col-span-1">
           <Link href="/" className="flex items-center gap-2 text-primary mb-4" aria-label="Home">
-            <Image src="/logo/logo.jpg" alt="Hot Dog Water Sport" width={40} height={40} className="rounded-sm object-contain" />
+            <Image src={logoUrl || "/logo/logo.jpg"} alt="Hot Dog Water Sport" width={40} height={40} className="rounded-sm object-contain" />
             <span className="font-display font-bold text-lg">Hot Dog Water Sport</span>
           </Link>
           <p className="text-text-subtle text-sm leading-relaxed mb-6">

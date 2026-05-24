@@ -19,7 +19,11 @@ const NAV_LINKS = [
 
 const FOCUSABLE = 'a[href], button, input, [tabindex]:not([tabindex="-1"])';
 
-export default function Header() {
+interface HeaderProps {
+  logoUrl?: string | null;
+}
+
+export default function Header({ logoUrl }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
@@ -81,7 +85,7 @@ export default function Header() {
         <div className="container-content flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 font-display font-bold text-xl text-primary" aria-label="PT Hot Dog Water Sport, Home">
-            <Image src="/logo/logo.jpg" alt="Hot Dog Water Sport" width={40} height={40} className="rounded-sm object-contain" />
+            <Image src={logoUrl || "/logo/logo.jpg"} alt="Hot Dog Water Sport" width={40} height={40} className="rounded-sm object-contain" />
             <span className="hidden sm:inline">Hot Dog Water Sport</span>
           </Link>
 

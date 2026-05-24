@@ -2,9 +2,14 @@
 
 import { useState, useTransition } from "react";
 import { uploadMediaAsset } from "@/lib/media/client";
+import { GALLERY_CATEGORY_OPTIONS, type TaxonomyOption } from "@/lib/taxonomy";
 import { createGalleryItem } from "./actions";
 
-export default function GalleryUploader() {
+export default function GalleryUploader({
+  categories = GALLERY_CATEGORY_OPTIONS,
+}: {
+  categories?: readonly TaxonomyOption[];
+}) {
   const [message, setMessage] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -14,7 +19,6 @@ export default function GalleryUploader() {
       onSubmit={(event) => {
         event.preventDefault();
         const form = event.currentTarget;
-        const formData = new FormData(form);
         const fileInput = form.elements.namedItem("files") as HTMLInputElement;
         const selectedFiles = Array.from(fileInput.files || []);
 
@@ -26,14 +30,18 @@ export default function GalleryUploader() {
         startTransition(async () => {
           try {
             for (const file of selectedFiles) {
+              const itemFormData = new FormData(form);
+              if (!String(itemFormData.get("alt_text") || "").trim()) {
+                itemFormData.set("alt_text", file.name);
+              }
               const asset = await uploadMediaAsset({
                 file,
                 folder: "gallery",
-                altText: String(formData.get("alt_text") || file.name),
-                caption: String(formData.get("caption") || ""),
+                altText: String(itemFormData.get("alt_text") || file.name),
+                caption: String(itemFormData.get("caption") || ""),
                 status: "published",
               });
-              await createGalleryItem(asset.id, formData);
+              await createGalleryItem(asset.id, itemFormData);
             }
             form.reset();
             setMessage("Gallery media uploaded.");
@@ -47,8 +55,7 @@ export default function GalleryUploader() {
         Files
         <input name="files" type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" className="mt-2 block w-full rounded-md border border-border px-3 py-2" />
       </label>
-      <Field name="category" label="Category" defaultValue="watersport" />
-      <Field name="sort_order" label="Sort Order" type="number" defaultValue="0" />
+      <CategorySelect defaultValue={categories[0]?.value || "watersport"} options={categories} />
       <Field name="alt_text" label="Alt Text" />
       <Field name="caption" label="Caption" />
       <Select name="status" label="Status" defaultValue="published" />
@@ -70,6 +77,31 @@ function Field(props: React.InputHTMLAttributes<HTMLInputElement> & { label: str
     <label className="block text-sm font-medium text-text-primary">
       {label}
       <input {...inputProps} className="mt-2 w-full rounded-md border border-border px-3 py-2" />
+    </label>
+  );
+}
+
+function CategorySelect({
+  defaultValue,
+  options,
+}: {
+  defaultValue: string;
+  options: readonly TaxonomyOption[];
+}) {
+  return (
+    <label className="block text-sm font-medium text-text-primary">
+      Category
+      <select
+        name="category"
+        defaultValue={defaultValue}
+        className="mt-2 w-full rounded-md border border-border px-3 py-2"
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
     </label>
   );
 }

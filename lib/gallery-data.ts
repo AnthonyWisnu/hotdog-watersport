@@ -1,13 +1,8 @@
-export type GalleryCategory =
-  | "all"
-  | "watersport"
-  | "diving"
-  | "snorkeling"
-  | "tour";
+export type GalleryCategory = string;
 
 export interface GalleryItem {
   id: string;
-  category: Exclude<GalleryCategory, "all">;
+  category: GalleryCategory;
   type: "image" | "video";
   src: string;
   alt: string;
@@ -35,12 +30,14 @@ export const GALLERY_ITEMS: GalleryItem[] = [
   { id: "t02", category: "tour",       type: "image", src: "/images/gallery/mangrove-tour.jpg",          alt: "Mangrove tour through lush coastal forest",      width: 1200, height: 800 },
 ];
 
-export const GALLERY_CATEGORIES: { id: GalleryCategory; label: string }[] = [
-  { id: "all",        label: "All" },
-  { id: "watersport", label: "Water Sports" },
-  { id: "diving",     label: "Diving" },
-  { id: "snorkeling", label: "Snorkeling" },
-  { id: "tour",       label: "Tours" },
+export const GALLERY_CATEGORIES: { value: GalleryCategory; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "watersport", label: "Water Sports" },
+  { value: "diving", label: "Diving" },
+  { value: "snorkeling", label: "Snorkeling" },
+  { value: "tour", label: "Tours" },
+  { value: "promo", label: "Promo" },
+  { value: "facility", label: "Facility" },
 ];
 
 export const GALLERY_PAGE_SIZE = 12;

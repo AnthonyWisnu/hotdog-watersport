@@ -3,11 +3,23 @@
 import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { GALLERY_CATEGORIES, GALLERY_PAGE_SIZE, type GalleryCategory, type GalleryItem } from "@/lib/gallery-data";
+import {
+  GALLERY_CATEGORIES,
+  GALLERY_PAGE_SIZE,
+  type GalleryCategory,
+  type GalleryItem,
+} from "@/lib/gallery-data";
+import type { TaxonomyOption } from "@/lib/taxonomy";
 import GlareHover from "@/components/animations/GlareHover";
 import Lightbox from "./Lightbox";
 
-export default function GalleryGrid({ items }: { items: GalleryItem[] }) {
+export default function GalleryGrid({
+  items,
+  categories = GALLERY_CATEGORIES,
+}: {
+  items: GalleryItem[];
+  categories?: readonly TaxonomyOption[];
+}) {
   const [activeCategory, setActiveCategory] = useState<GalleryCategory>("all");
   const [visibleCount, setVisibleCount] = useState(GALLERY_PAGE_SIZE);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -27,17 +39,17 @@ export default function GalleryGrid({ items }: { items: GalleryItem[] }) {
     setLightboxIndex(globalIndex);
   };
 
-  const selectCategory = (id: GalleryCategory) => {
+  const selectCategory = useCallback((id: GalleryCategory) => {
     setActiveCategory(id);
     setVisibleCount(GALLERY_PAGE_SIZE);
     setLightboxIndex(null);
-  };
+  }, []);
 
   // Arrow-key navigation between tabs per ARIA tabs pattern
   const handleTabKeyDown = useCallback((e: React.KeyboardEvent, currentId: GalleryCategory) => {
     if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
     e.preventDefault();
-    const ids = GALLERY_CATEGORIES.map((c) => c.id);
+    const ids = categories.map((category) => category.value);
     const currentIndex = ids.indexOf(currentId);
     const nextIndex = e.key === "ArrowRight"
       ? (currentIndex + 1) % ids.length
@@ -47,7 +59,7 @@ export default function GalleryGrid({ items }: { items: GalleryItem[] }) {
     // Move focus to the newly active tab
     const tabs = tablistRef.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
     tabs?.[nextIndex]?.focus();
-  }, []);
+  }, [categories, selectCategory]);
 
   return (
     <>
@@ -74,16 +86,16 @@ export default function GalleryGrid({ items }: { items: GalleryItem[] }) {
             aria-label="Filter gallery by category"
             className="flex flex-wrap gap-2 mb-10"
           >
-            {GALLERY_CATEGORIES.map(({ id, label }) => {
-              const isActive = activeCategory === id;
+            {categories.map(({ value, label }) => {
+              const isActive = activeCategory === value;
               return (
                 <button
-                  key={id}
+                  key={value}
                   role="tab"
                   aria-selected={isActive}
                   tabIndex={isActive ? 0 : -1}
-                  onClick={() => selectCategory(id)}
-                  onKeyDown={(e) => handleTabKeyDown(e, id)}
+                  onClick={() => selectCategory(value)}
+                  onKeyDown={(e) => handleTabKeyDown(e, value)}
                   className={`
                     px-4 py-2 rounded-full text-sm font-medium transition-all
                     focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary

@@ -2,6 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin/auth";
+import {
+  getNextSortOrder,
+  moveSortOrder,
+  parseSortOrder,
+  type SortDirection,
+} from "@/lib/admin/sort-order";
 import { createClient } from "@/lib/supabase/server";
 
 function nullableText(value: FormDataEntryValue | null) {
@@ -19,7 +25,10 @@ export async function createTestimonial(formData: FormData) {
     review: String(formData.get("review") || "").trim(),
     reviewed_at: nullableText(formData.get("reviewed_at")),
     is_featured: formData.get("is_featured") === "on",
-    sort_order: Number(formData.get("sort_order") || 0),
+    sort_order: parseSortOrder(
+      formData.get("sort_order"),
+      await getNextSortOrder("testimonials")
+    ),
     status: String(formData.get("status") || "draft") as "draft" | "published" | "archived",
     created_by: user.id,
     updated_by: user.id,
@@ -42,13 +51,21 @@ export async function updateTestimonial(id: string, formData: FormData) {
       review: String(formData.get("review") || "").trim(),
       reviewed_at: nullableText(formData.get("reviewed_at")),
       is_featured: formData.get("is_featured") === "on",
-      sort_order: Number(formData.get("sort_order") || 0),
+      sort_order: parseSortOrder(formData.get("sort_order"), 0),
       status: String(formData.get("status") || "draft") as "draft" | "published" | "archived",
       updated_by: user.id,
     })
     .eq("id", id);
 
   if (error) throw error;
+  revalidatePath("/");
+  revalidatePath("/admin/testimonials");
+}
+
+export async function moveTestimonial(id: string, direction: SortDirection) {
+  const { user } = await requireAdmin();
+  await moveSortOrder("testimonials", id, direction, user.id);
+
   revalidatePath("/");
   revalidatePath("/admin/testimonials");
 }

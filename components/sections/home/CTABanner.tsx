@@ -2,14 +2,14 @@ import Image from "next/image";
 import { WhatsAppButton } from "@/components/ui/Button";
 import ScrollReveal from "@/components/animations/ScrollReveal";
 
-export default function CTABanner() {
+export default function CTABanner({ backgroundUrl }: { backgroundUrl?: string | null }) {
   return (
     <section
       aria-labelledby="cta-banner-heading"
       className="relative py-28 sm:py-36 overflow-hidden bg-surface-dark"
     >
       <Image
-        src="/images/placeholder/cta-bg.jpg"
+        src={backgroundUrl || "/images/placeholder/cta-bg.jpg"}
         alt=""
         fill
         className="object-cover opacity-40"

@@ -3,9 +3,18 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { FAQ_CATEGORIES, type FAQCategory, type FAQItem } from "@/lib/faq-data";
+import type { TaxonomyOption } from "@/lib/taxonomy";
 
-export default function FAQAccordion({ items }: { items: FAQItem[] }) {
-  const [activeCategory, setActiveCategory] = useState<FAQCategory>("general");
+export default function FAQAccordion({
+  items,
+  categories = FAQ_CATEGORIES,
+}: {
+  items: FAQItem[];
+  categories?: readonly TaxonomyOption[];
+}) {
+  const [activeCategory, setActiveCategory] = useState<FAQCategory>(
+    categories[0]?.value || "general"
+  );
   const [openId, setOpenId] = useState<string | null>(null);
 
   const filtered = items.filter((item) => item.category === activeCategory);
@@ -24,15 +33,15 @@ export default function FAQAccordion({ items }: { items: FAQItem[] }) {
 
         {/* Category tabs */}
         <div role="tablist" aria-label="FAQ categories" className="flex flex-wrap gap-2 mb-8">
-          {FAQ_CATEGORIES.map(({ id, label }) => (
+          {categories.map(({ value, label }) => (
             <button
-              key={id}
+              key={value}
               role="tab"
-              aria-selected={activeCategory === id}
-              onClick={() => { setActiveCategory(id); setOpenId(null); }}
+              aria-selected={activeCategory === value}
+              onClick={() => { setActiveCategory(value); setOpenId(null); }}
               className={`
                 px-4 py-2 rounded-full text-sm font-medium transition-all
-                ${activeCategory === id
+                ${activeCategory === value
                   ? "bg-primary text-text-inverse"
                   : "bg-surface-muted text-text-muted hover:text-text-primary border border-border"
                 }

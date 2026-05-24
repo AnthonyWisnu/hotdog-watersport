@@ -14,6 +14,12 @@ export const ALLOWED_MEDIA_MIME_TYPES = [
   ...ALLOWED_VIDEO_MIME_TYPES,
 ] as const;
 
-export type MediaFolder = "hero" | "services" | "gallery" | "testimonials";
+export type MediaFolder =
+  | "hero"
+  | "services"
+  | "gallery"
+  | "testimonials"
+  | "library"
+  | "logos";
 export type MediaStatus = "draft" | "published" | "archived";
 export type MediaType = "image" | "video";

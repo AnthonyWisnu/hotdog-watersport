@@ -144,6 +144,9 @@ export interface Database {
           hero_subtitle: string;
           hero_cta_text: string;
           hero_secondary_cta_text: string;
+          logo_media_id: string | null;
+          footer_logo_media_id: string | null;
+          favicon_media_id: string | null;
           hero_media_id: string | null;
           whatsapp_number: string | null;
           business_email: string | null;
@@ -252,6 +255,36 @@ export interface Database {
           review: string;
         };
         Update: Partial<Database["public"]["Tables"]["testimonials"]["Row"]>;
+        Relationships: [];
+      };
+      taxonomies: {
+        Row: {
+          id: string;
+          taxonomy_group:
+            | "service_category"
+            | "service_badge"
+            | "gallery_category"
+            | "faq_category";
+          value: string;
+          label: string;
+          description: string | null;
+          sort_order: number;
+          status: "active" | "inactive" | "archived";
+          created_by: string | null;
+          updated_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["taxonomies"]["Row"]> & {
+          taxonomy_group:
+            | "service_category"
+            | "service_badge"
+            | "gallery_category"
+            | "faq_category";
+          value: string;
+          label: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["taxonomies"]["Row"]>;
         Relationships: [];
       };
     };
