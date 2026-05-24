@@ -28,6 +28,7 @@ interface ServiceFormProps {
   };
   categoryOptions?: readonly TaxonomyOption[];
   badgeOptions?: readonly TaxonomyOption[];
+  canPublish?: boolean;
 }
 
 export default function ServiceForm({
@@ -35,7 +36,13 @@ export default function ServiceForm({
   service,
   categoryOptions = SERVICE_CATEGORY_OPTIONS,
   badgeOptions = SERVICE_BADGE_OPTIONS,
+  canPublish = false,
 }: ServiceFormProps) {
+  const statusValue =
+    !canPublish && service?.status === "published"
+      ? "draft"
+      : service?.status || "draft";
+
   return (
     <form action={action}>
       {service ? (
@@ -53,7 +60,7 @@ export default function ServiceForm({
             defaultValue={service?.badge || ""}
             options={badgeOptions}
           />
-          <Select name="status" label="Status" defaultValue={service?.status || "draft"} />
+          <StatusSelect defaultValue={statusValue} canPublish={canPublish} />
           <label className="flex items-center gap-2 self-end text-sm font-medium text-text-primary">
             <input name="is_popular" type="checkbox" defaultChecked={service?.is_popular} />
             Popular
@@ -159,15 +166,32 @@ function Textarea({ label, className = "", ...props }: React.TextareaHTMLAttribu
   );
 }
 
-function Select({ label, ...props }: React.SelectHTMLAttributes<HTMLSelectElement> & { label: string; name: string }) {
+function StatusSelect({
+  defaultValue,
+  canPublish,
+}: {
+  defaultValue: string;
+  canPublish: boolean;
+}) {
   return (
     <label className="block text-sm font-medium text-text-primary">
-      {label}
-      <select {...props} className="mt-2 w-full rounded-md border border-border px-3 py-2 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+      Status
+      <select
+        name="status"
+        defaultValue={defaultValue}
+        className="mt-2 w-full rounded-md border border-border px-3 py-2 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+      >
         <option value="draft">Draft</option>
-        <option value="published">Published</option>
+        <option value="published" disabled={!canPublish}>
+          {canPublish ? "Published" : "Published (requires cover image)"}
+        </option>
         <option value="archived">Archived</option>
       </select>
+      {!canPublish ? (
+        <span className="mt-1 block text-xs text-text-muted">
+          Upload one published cover image before publishing this service.
+        </span>
+      ) : null}
     </label>
   );
 }

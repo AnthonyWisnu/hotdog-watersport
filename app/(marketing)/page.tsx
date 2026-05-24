@@ -5,7 +5,6 @@ import { getSiteSettings } from "@/lib/cms/settings";
 import { getGalleryPreviewItems } from "@/lib/cms/gallery";
 import { getPublishedTestimonials } from "@/lib/cms/testimonials";
 import HeroSection from "@/components/sections/home/HeroSection";
-import BrandStatement from "@/components/sections/home/BrandStatement";
 import ServicesPreview from "@/components/sections/home/ServicesPreview";
 import GalleryTeaser from "@/components/sections/home/GalleryTeaser";
 import TestimonialsSection from "@/components/sections/home/TestimonialsSection";
@@ -36,7 +35,6 @@ export default async function HomePage() {
   return (
     <>
       <HeroSection settings={settings} fallbackHeroMediaUrl={galleryItems[0]?.src} />
-      <BrandStatement />
       <ServicesPreview services={services} />
       <GalleryTeaser items={galleryItems} />
       <WhyChooseUs />

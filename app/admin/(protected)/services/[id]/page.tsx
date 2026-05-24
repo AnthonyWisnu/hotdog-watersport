@@ -50,6 +50,7 @@ export default async function AdminServiceEditPage({
           service={service}
           categoryOptions={taxonomy.serviceCategories}
           badgeOptions={taxonomy.serviceBadges}
+          canPublish={hasCover}
         />
 
         <AdminCard

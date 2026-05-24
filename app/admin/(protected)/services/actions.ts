@@ -89,11 +89,8 @@ async function getMediaType(mediaAssetId: string) {
 export async function createService(formData: FormData) {
   const { user } = await requireAdmin();
   const supabase = await createClient();
-  const status = statusValue(formData);
-
-  if (status === "published") {
-    throw new Error("Create the service as draft, attach a cover image, then publish it.");
-  }
+  const requestedStatus = statusValue(formData);
+  const status = requestedStatus === "published" ? "draft" : requestedStatus;
 
   const { data, error } = await supabase
     .from("services")
@@ -135,10 +132,10 @@ export async function createService(formData: FormData) {
 export async function updateService(id: string, formData: FormData) {
   const { user } = await requireAdmin();
   const supabase = await createClient();
-  const status = statusValue(formData);
+  let status = statusValue(formData);
 
   if (status === "published" && !(await serviceHasCoverImage(id))) {
-    throw new Error("A service needs one published cover image before it can be published.");
+    status = "draft";
   }
 
   const { error } = await supabase
