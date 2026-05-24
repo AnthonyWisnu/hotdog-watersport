@@ -24,11 +24,18 @@ interface HeaderProps {
 }
 
 export default function Header({ logoUrl }: HeaderProps) {
+  const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
   const menuRef = useRef<HTMLDivElement>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Lock body scroll + focus management for mobile menu
   useEffect(() => {
@@ -69,12 +76,15 @@ export default function Header({ logoUrl }: HeaderProps) {
       <header
         className={`
           fixed top-0.5 inset-x-0 z-40 transition-all duration-300
-          bg-[#4BB8FA] border-b border-white/20 shadow-sm
+          ${scrolled
+            ? "bg-surface/90 backdrop-blur-md border-b border-border shadow-sm"
+            : "bg-transparent"
+          }
         `}
       >
         <div className="container-content flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 font-display font-bold text-xl text-white" aria-label="PT Hot Dog Water Sport, Home">
+          <Link href="/" className="flex items-center gap-2 font-display font-bold text-xl text-primary" aria-label="PT Hot Dog Water Sport, Home">
             <Image src={logoUrl || "/logo/logo.jpg"} alt="Hot Dog Water Sport" width={40} height={40} className="rounded-sm object-contain" />
             <span className="hidden sm:inline">Hot Dog Water Sport</span>
           </Link>
@@ -91,8 +101,8 @@ export default function Header({ logoUrl }: HeaderProps) {
                   className={`
                     relative px-3 py-1.5 text-sm font-medium rounded-md transition-colors
                     ${active
-                      ? "text-white"
-                      : "text-white/85 hover:text-white"
+                      ? "text-primary"
+                      : "text-text-muted hover:text-text-primary"
                     }
                   `}
                 >
@@ -100,7 +110,7 @@ export default function Header({ logoUrl }: HeaderProps) {
                   {active && (
                     <motion.span
                       layoutId="nav-indicator"
-                      className="absolute inset-x-0 -bottom-px h-0.5 bg-white rounded-full"
+                      className="absolute inset-x-0 -bottom-px h-0.5 bg-primary rounded-full"
                     />
                   )}
                 </Link>
@@ -120,7 +130,7 @@ export default function Header({ logoUrl }: HeaderProps) {
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
             aria-controls="mobile-menu"
-            className="lg:hidden flex items-center justify-center w-10 h-10 rounded-md text-white hover:bg-white/15 transition-colors"
+            className="lg:hidden flex items-center justify-center w-10 h-10 rounded-md text-text-primary hover:bg-surface-muted transition-colors"
           >
             {mobileOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
